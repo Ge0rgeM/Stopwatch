@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Fancy and easy stopwatch">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:image" content="https://c.tadst.com/gfx/1200x630/fb-stopwatch2.png?1">
+    <title>Stopwatch</title>
+</head>
+<style>
+    :root{
+        --hue: 250;
+        --saturation: 60%;
+        --lightness: 50%;
+        --background-color: hsl(var(--hue), var(--saturation), var(--lightness));
+    }
+    body{
+        margin: 0;
+        background-color: var(--background-color);
+    }
+    .all{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .buttons{
+        display: flex;
+    }
+    button{
+        text-decoration: none;
+        outline: none;
+        cursor:pointer;
+        background: var(--background-color);
+        color: white;
+        border-radius: 5px;
+        border: solid 1px white;
+        font-size: 2em;
+        margin: 0 15px 0 15px;
+        padding: 5px 10px ;
+        width: 210px;
+    }
+    h1{
+        font-size: 5em;
+    }
+    p{
+        font-size: 3em;
+    }
+    button:hover{
+        animation-duration: 1.3s;
+        animation-name: animation;
+        animation-fill-mode: both;
+    }
+    img{
+        cursor: pointer;
+    }
+    @keyframes animation{
+        100%{            
+            background-color: white;
+            color: var(--background-color);
+        }
+    }
+    @media (max-width: 600px) {
+        .all{
+            position: fixed;
+        }
+        body{
+            transform: scale(0.8);
+        }
+    }
+    @media (max-width: 500px) {
+        body{
+            transform: scale(0.7);
+        }
+    }
+    @media (max-width: 350px) {
+        body{
+            transform: scale(0.6);
+        }
+    }
+</style>
+<body>
+    <div class="all">
+        <h1 class="stopwatch">Stopwatch</h1>
+        <p>
+            <span id="hours" class="hours">00</span>:<span id="minutes" class="minutes">00</span>:<span id="seconds" class="seconds">00</span>:<span id="mlseconds" class="mlseconds">00</span>
+        </p>
+        <div class="buttons">
+            <button id="start" class="start" onclick="start()">Start</button>
+            <button id="reset" class="reset" onclick="reset()">Reset</button>
+        </div>
+        <div id="flag" class="flag">
+            <img onclick="flag()" src="stickmanFlag.png" alt="flag" width="200px">
+        </div>
+        <p id="flagTimes" class="flagTimes"></p>
+    </div>
+</body>
+</html>
+<script>
+    const COLOR_CHANGE_INTERVAL = 0.1;
+    let startButton = document.getElementById("start");
+    let htmlMlseconds = document.getElementById("mlseconds");
+    let htmlSeconds = document.getElementById("seconds");
+    let htmlMinutes = document.getElementById("minutes");
+    let htmlHours = document.getElementById("hours");
+    let flagTimes = document.getElementById("flagTimes");
+    let hours = 00;
+    let mlseconds = 00;
+    let seconds = 00;
+    let minutes = 00;
+    let interval;
+    
+    function start() {
+        let checker = false;
+        if(startButton.textContent=="Stop"&&(
+            htmlSeconds.innerHTML != "00"||
+            htmlMlseconds.innerHTML != "00"||
+            htmlMinutes.innerHTML != "00"||
+            htmlHours.innerHTML != "00"
+        )){
+            startButton.textContent = "Continue";
+            checker = false;
+        }else if(startButton.textContent=="Continue") {
+            startButton.textContent="Stop";
+            checker = true;
+        }else if(startButton.textContent=="Start"){
+            startButton.textContent = "Stop";
+            checker = true;
+        }
+
+        if(checker) {
+            clearInterval(interval);
+            interval = setInterval(timer, 10);
+        }else {
+            clearInterval(interval);
+        }  
+    }
+    function reset() {
+        clearInterval(interval);
+        hours = 00;
+        mlseconds = 00;
+        seconds = 00;
+        minutes = 00;
+        htmlSeconds.innerHTML = "00";
+        htmlMlseconds.innerHTML = "00";
+        htmlMinutes.innerHTML = "00";
+        htmlHours.innerHTML = "00";
+        startButton.textContent = "Start";
+        flagTimes.innerHTML="";
+    }
+    function timer() {
+        mlseconds++;
+        if(mlseconds<=9) {
+            htmlMlseconds.innerHTML = '0' + mlseconds;
+        }else if(mlseconds>99) {
+            seconds++;
+            if(seconds<=9) {
+                htmlSeconds.innerHTML = '0' + seconds;
+            }else if(seconds>59) {
+                seconds = 00;
+                htmlSeconds.innerHTML = "00";
+                htmlMlseconds.innerHTML = "00";
+                
+                minutes++;
+                if(minutes<=9) {
+                    htmlMinutes.innerHTML = '0' + minutes; 
+                }else if(minutes>59) {
+                    minutes = 00; 
+                    seconds = 00;
+                    htmlSeconds.innerHTML = "00";
+                    htmlMlseconds.innerHTML = "00";
+                    
+                    hours++;
+                    if(hours<=9) {
+                        htmlHours.innerHTML = '0' + hours;
+                    }else {
+                        htmlHours.innerHTML = hours;
+                    }
+                }else {
+                    htmlMinutes.innerHTML = minutes;
+                }
+            }else {
+                htmlSeconds.innerHTML= seconds;
+            }
+            mlseconds=00;
+        }else {
+            htmlMlseconds.innerHTML = mlseconds;
+        }
+        const hue = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hue"));
+        document.documentElement.style.setProperty("--hue",hue+COLOR_CHANGE_INTERVAL);
+    }
+    function flag() {
+        let temp = flagTimes.innerHTML;
+        flagTimes.innerHTML =htmlHours.innerText + ":" + htmlMinutes.innerText + ":" + htmlSeconds.innerText + ":" + htmlMlseconds.innerText + "<br>";
+        flagTimes.innerHTML+=temp;        
+    }    
+</script>
